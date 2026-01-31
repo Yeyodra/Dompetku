@@ -1,4 +1,4 @@
-export type TransactionType = "expense" | "income";
+export type TransactionType = "expense" | "income" | "transfer";
 
 export type TransactionCategory =
   | "makanan"
@@ -73,6 +73,7 @@ export interface TransactionFilter {
 export interface TransactionWithItems {
   id: string;
   userId: string;
+  walletId?: string | null;
   type: TransactionType;
   storeName: string;
   date: string;
@@ -89,6 +90,11 @@ export interface TransactionWithItems {
     quantity: number;
     price: number;
   }[];
+  wallet?: {
+    id: string;
+    name: string;
+    color: string | null;
+  } | null;
 }
 
 export interface CreateTransactionInput {
@@ -97,6 +103,7 @@ export interface CreateTransactionInput {
   date: string;
   total: number;
   category: TransactionCategory;
+  walletId?: string;
   receiptImageUrl?: string;
   rawOcrText?: string;
   ocrConfidence?: number;

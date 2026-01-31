@@ -32,6 +32,11 @@ interface Transaction {
   date: string;
   total: number;
   category: TransactionCategory;
+  wallet?: {
+    id: string;
+    name: string;
+    color: string | null;
+  } | null;
 }
 
 export default function TransactionsPage() {
@@ -205,9 +210,10 @@ export default function TransactionsPage() {
           ) : (
             <div className="divide-y-[3px] divide-black">
               {/* Table Header */}
-              <div className="grid grid-cols-5 gap-4 bg-black p-4 font-bold uppercase text-white">
+              <div className="grid grid-cols-6 gap-4 bg-black p-4 font-bold uppercase text-white">
                 <div>Tanggal</div>
                 <div>Toko/Sumber</div>
+                <div>Dompet</div>
                 <div>Kategori</div>
                 <div>Tipe</div>
                 <div className="text-right">Jumlah</div>
@@ -216,7 +222,7 @@ export default function TransactionsPage() {
               {filteredTransactions.map((tx) => (
                 <div 
                   key={tx.id} 
-                  className="grid grid-cols-5 gap-4 p-4 font-medium transition-colors hover:bg-primary/20"
+                  className="grid grid-cols-6 gap-4 p-4 font-medium transition-colors hover:bg-primary/20"
                 >
                   <div>
                     {new Date(tx.date).toLocaleDateString("id-ID", {
@@ -226,6 +232,19 @@ export default function TransactionsPage() {
                     })}
                   </div>
                   <div className="font-bold">{tx.storeName}</div>
+                  <div>
+                    {tx.wallet ? (
+                      <span className="inline-flex items-center gap-1 border-[2px] border-black px-2 py-1 text-xs font-bold">
+                        <span
+                          className="h-2 w-2 border border-black"
+                          style={{ backgroundColor: tx.wallet.color || "#3B82F6" }}
+                        />
+                        {tx.wallet.name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
+                  </div>
                   <div>
                     <span className="inline-block border-[2px] border-black bg-secondary px-2 py-1 text-xs font-bold uppercase">
                       {CATEGORY_OPTIONS.find((c) => c.value === tx.category)?.label}

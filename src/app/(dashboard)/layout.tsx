@@ -5,6 +5,7 @@ import { LayoutDashboard, Receipt, ScanLine, Wallet } from "lucide-react";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/transactions", icon: Receipt, label: "Transaksi" },
+  { href: "/wallets", icon: Wallet, label: "Dompet" },
   { href: "/scan", icon: ScanLine, label: "Scan Struk" },
 ];
 

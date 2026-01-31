@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,8 @@ import {
   FileText,
   Save,
   ArrowDownCircle,
-  ArrowUpCircle
+  ArrowUpCircle,
+  Wallet
 } from "lucide-react";
 import { extractTextFromImage } from "@/lib/ocr";
 import { 
@@ -31,6 +32,7 @@ import {
   TransactionCategory,
   TransactionType 
 } from "@/types/transaction";
+import { WalletWithBalance } from "@/types/wallet";
 import { ReceiptData, OCRResult } from "@/types/receipt";
 import { toast } from "sonner";
 
@@ -44,12 +46,42 @@ export default function ScanPage() {
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Wallet state
+  const [wallets, setWallets] = useState<WalletWithBalance[]>([]);
+  const [walletId, setWalletId] = useState<string>("");
+  const [loadingWallets, setLoadingWallets] = useState(true);
+
   // Form state
   const [type, setType] = useState<TransactionType>("expense");
   const [storeName, setStoreName] = useState("");
   const [date, setDate] = useState("");
   const [total, setTotal] = useState("");
   const [category, setCategory] = useState<TransactionCategory>("belanja");
+
+  // Fetch wallets on mount
+  useEffect(() => {
+    async function fetchWallets() {
+      try {
+        const res = await fetch("/api/wallets");
+        if (res.ok) {
+          const data = await res.json() as { wallets: WalletWithBalance[] };
+          setWallets(data.wallets || []);
+          // Pre-select default wallet
+          const defaultWallet = data.wallets?.find((w: WalletWithBalance) => w.isDefault);
+          if (defaultWallet) {
+            setWalletId(defaultWallet.id);
+          } else if (data.wallets?.length > 0) {
+            setWalletId(data.wallets[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch wallets:", error);
+      } finally {
+        setLoadingWallets(false);
+      }
+    }
+    fetchWallets();
+  }, []);
 
   // Get category options based on type
   const categoryOptions = type === "expense" 
@@ -162,6 +194,7 @@ export default function ScanPage() {
           date,
           total: parseFloat(total.replace(/[^0-9]/g, "")),
           category,
+          walletId: walletId || undefined,
           rawOcrText: ocrResult?.rawText,
           ocrConfidence: ocrResult?.confidence,
           items: ocrResult?.items || [],
@@ -382,6 +415,41 @@ export default function ScanPage() {
                 onChange={(e) => setTotal(e.target.value)}
                 placeholder="Contoh: 50000"
               />
+            </div>
+
+            {/* Wallet Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="wallet" className="text-xs font-bold uppercase">
+                <span className="flex items-center gap-1">
+                  <Wallet className="h-3 w-3" />
+                  Dompet
+                </span>
+              </Label>
+              <Select
+                value={walletId}
+                onValueChange={setWalletId}
+                disabled={loadingWallets}
+              >
+                <SelectTrigger className="border-[3px] border-black shadow-[4px_4px_0px_#000]">
+                  <SelectValue placeholder={loadingWallets ? "Memuat..." : "Pilih dompet"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {wallets.map((w) => (
+                    <SelectItem key={w.id} value={w.id}>
+                      <span className="flex items-center gap-2">
+                        <span
+                          className="h-3 w-3 border-[2px] border-black"
+                          style={{ backgroundColor: w.color || "#3B82F6" }}
+                        />
+                        {w.name}
+                        {w.isDefault && (
+                          <span className="text-xs text-muted-foreground">(Default)</span>
+                        )}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

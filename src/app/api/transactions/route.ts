@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { db, transactions, transactionItems, users } from "@/db";
+import { db, transactions, transactionItems, users, wallets } from "@/db";
 import { eq, desc, and, gte, lte, like, sql } from "drizzle-orm";
 import { CreateTransactionInput, TransactionCategory, TransactionType } from "@/types/transaction";
 
@@ -47,14 +47,25 @@ export async function GET(request: NextRequest) {
       .where(and(...conditions))
       .orderBy(desc(transactions.date), desc(transactions.createdAt));
 
-    // Get items for each transaction
+    // Get items and wallet for each transaction
     const transactionsWithItems = await Promise.all(
       result.map(async (tx) => {
         const items = await db
           .select()
           .from(transactionItems)
           .where(eq(transactionItems.transactionId, tx.id));
-        return { ...tx, items };
+        
+        let wallet = null;
+        if (tx.walletId) {
+          const walletResult = await db
+            .select({ id: wallets.id, name: wallets.name, color: wallets.color })
+            .from(wallets)
+            .where(eq(wallets.id, tx.walletId))
+            .limit(1);
+          wallet = walletResult[0] || null;
+        }
+        
+        return { ...tx, items, wallet };
       })
     );
 
@@ -102,6 +113,7 @@ export async function POST(request: NextRequest) {
     await db.insert(transactions).values({
       id: transactionId,
       userId,
+      walletId: body.walletId || null,
       type: body.type || "expense",
       storeName: body.storeName,
       date: body.date,
