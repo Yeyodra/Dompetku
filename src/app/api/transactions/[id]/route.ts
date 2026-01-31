@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createDb, transactions, transactionItems } from "@/db";
+import { db, transactions, transactionItems } from "@/db";
 import { eq, and } from "drizzle-orm";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { UpdateTransactionInput } from "@/types/transaction";
 
 export const runtime = "edge";
@@ -19,8 +18,6 @@ export async function GET(
     }
 
     const { id } = await params;
-    const { env } = await getCloudflareContext({ async: true });
-    const db = createDb(env.DB);
 
     const result = await db
       .select()
@@ -59,8 +56,6 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { env } = await getCloudflareContext({ async: true });
-    const db = createDb(env.DB);
 
     // Check ownership
     const existing = await db
@@ -143,8 +138,6 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const { env } = await getCloudflareContext({ async: true });
-    const db = createDb(env.DB);
 
     // Check ownership
     const existing = await db

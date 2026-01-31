@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,41 +17,64 @@ import {
   Search, 
   Filter, 
   Receipt, 
-  ScanLine
+  ScanLine,
+  Loader2,
+  ArrowUpCircle,
+  ArrowDownCircle
 } from "lucide-react";
 import Link from "next/link";
-import { CATEGORY_OPTIONS, TransactionCategory } from "@/types/transaction";
+import { CATEGORY_OPTIONS, TransactionCategory, TransactionType } from "@/types/transaction";
+
+interface Transaction {
+  id: string;
+  type: TransactionType;
+  storeName: string;
+  date: string;
+  total: number;
+  category: TransactionCategory;
+}
 
 export default function TransactionsPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<TransactionCategory | "all">("all");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // TODO: Fetch transactions from API
-  const transactions: Array<{
-    id: string;
-    storeName: string;
-    date: string;
-    total: number;
-    category: TransactionCategory;
-  }> = [];
+  // Fetch transactions from API
+  useEffect(() => {
+    async function fetchTransactions() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const params = new URLSearchParams();
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
+        if (category !== "all") params.set("category", category);
+        if (search) params.set("search", search);
+        
+        const res = await fetch(`/api/transactions?${params.toString()}`);
+        if (!res.ok) {
+          throw new Error("Failed to fetch transactions");
+        }
+        
+        const data = await res.json() as { transactions: Transaction[] };
+        setTransactions(data.transactions || []);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+        setError("Gagal memuat transaksi");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  const filteredTransactions = transactions.filter((tx) => {
-    if (search && !tx.storeName.toLowerCase().includes(search.toLowerCase())) {
-      return false;
-    }
-    if (category !== "all" && tx.category !== category) {
-      return false;
-    }
-    if (startDate && tx.date < startDate) {
-      return false;
-    }
-    if (endDate && tx.date > endDate) {
-      return false;
-    }
-    return true;
-  });
+    fetchTransactions();
+  }, [startDate, endDate, category, search]);
+
+  const filteredTransactions = transactions;
 
   return (
     <div className="space-y-8">
@@ -147,7 +170,23 @@ export default function TransactionsPage() {
       {/* Transactions List */}
       <Card>
         <CardContent className="p-0">
-          {filteredTransactions.length === 0 ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <Loader2 className="h-10 w-10 animate-spin" />
+              <p className="mt-4 font-medium text-muted-foreground">Memuat transaksi...</p>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-16">
+              <p className="font-medium text-destructive">{error}</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Coba Lagi
+              </Button>
+            </div>
+          ) : filteredTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="mb-4 flex h-20 w-20 items-center justify-center border-[3px] border-black bg-primary shadow-[4px_4px_0px_#000]">
                 <Receipt className="h-10 w-10" />
@@ -166,17 +205,18 @@ export default function TransactionsPage() {
           ) : (
             <div className="divide-y-[3px] divide-black">
               {/* Table Header */}
-              <div className="grid grid-cols-4 gap-4 bg-black p-4 font-bold uppercase text-white">
+              <div className="grid grid-cols-5 gap-4 bg-black p-4 font-bold uppercase text-white">
                 <div>Tanggal</div>
-                <div>Toko</div>
+                <div>Toko/Sumber</div>
                 <div>Kategori</div>
-                <div className="text-right">Total</div>
+                <div>Tipe</div>
+                <div className="text-right">Jumlah</div>
               </div>
               {/* Table Body */}
               {filteredTransactions.map((tx) => (
                 <div 
                   key={tx.id} 
-                  className="grid grid-cols-4 gap-4 p-4 font-medium transition-colors hover:bg-primary/20"
+                  className="grid grid-cols-5 gap-4 p-4 font-medium transition-colors hover:bg-primary/20"
                 >
                   <div>
                     {new Date(tx.date).toLocaleDateString("id-ID", {
@@ -191,8 +231,21 @@ export default function TransactionsPage() {
                       {CATEGORY_OPTIONS.find((c) => c.value === tx.category)?.label}
                     </span>
                   </div>
-                  <div className="text-right font-black">
-                    Rp {tx.total.toLocaleString("id-ID")}
+                  <div>
+                    {tx.type === "income" ? (
+                      <span className="inline-flex items-center gap-1 border-[2px] border-black bg-green-100 px-2 py-1 text-xs font-bold uppercase text-green-700">
+                        <ArrowUpCircle className="h-3 w-3" />
+                        Masuk
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 border-[2px] border-black bg-red-100 px-2 py-1 text-xs font-bold uppercase text-red-700">
+                        <ArrowDownCircle className="h-3 w-3" />
+                        Keluar
+                      </span>
+                    )}
+                  </div>
+                  <div className={`text-right font-black ${tx.type === "income" ? "text-green-600" : "text-red-600"}`}>
+                    {tx.type === "income" ? "+" : "-"}Rp {tx.total.toLocaleString("id-ID")}
                   </div>
                 </div>
               ))}

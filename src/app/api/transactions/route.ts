@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createDb, transactions, transactionItems, users } from "@/db";
-import { eq, desc, and, gte, lte, like } from "drizzle-orm";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { CreateTransactionInput, TransactionCategory } from "@/types/transaction";
+import { db, transactions, transactionItems, users } from "@/db";
+import { eq, desc, and, gte, lte, like, sql } from "drizzle-orm";
+import { CreateTransactionInput, TransactionCategory, TransactionType } from "@/types/transaction";
 
 export const runtime = "edge";
 
@@ -15,17 +14,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { env } = await getCloudflareContext({ async: true });
-    const db = createDb(env.DB);
-
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const category = searchParams.get("category") as TransactionCategory | null;
+    const type = searchParams.get("type") as TransactionType | null;
     const search = searchParams.get("search");
 
     // Build query conditions
     const conditions = [eq(transactions.userId, userId)];
+
+    if (type) {
+      conditions.push(eq(transactions.type, type));
+    }
 
     if (startDate) {
       conditions.push(gte(transactions.date, startDate));
@@ -75,9 +76,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { env } = await getCloudflareContext({ async: true });
-    const db = createDb(env.DB);
-
     const body: CreateTransactionInput = await request.json();
 
     // Ensure user exists in DB (sync from Clerk)
@@ -104,6 +102,7 @@ export async function POST(request: NextRequest) {
     await db.insert(transactions).values({
       id: transactionId,
       userId,
+      type: body.type || "expense",
       storeName: body.storeName,
       date: body.date,
       total: body.total,

@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "dompetku-db"
-database_id = "<D1_DATABASE_ID>"
+database_id = "c38df412-9315-41fe-b76e-13bb9b4dec41"
 
 # R2 Bucket untuk gambar struk
 # Jalankan: wrangler r2 bucket create dompetku-storage

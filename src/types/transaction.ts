@@ -1,3 +1,5 @@
+export type TransactionType = "expense" | "income";
+
 export type TransactionCategory =
   | "makanan"
   | "minuman"
@@ -6,7 +8,28 @@ export type TransactionCategory =
   | "hiburan"
   | "kesehatan"
   | "pendidikan"
+  | "gaji"
+  | "bonus"
+  | "investasi"
   | "lainnya";
+
+export const EXPENSE_CATEGORIES: TransactionCategory[] = [
+  "makanan",
+  "minuman",
+  "belanja",
+  "transportasi",
+  "hiburan",
+  "kesehatan",
+  "pendidikan",
+  "lainnya",
+];
+
+export const INCOME_CATEGORIES: TransactionCategory[] = [
+  "gaji",
+  "bonus",
+  "investasi",
+  "lainnya",
+];
 
 export const CATEGORY_LABELS: Record<TransactionCategory, string> = {
   makanan: "Makanan",
@@ -16,6 +39,9 @@ export const CATEGORY_LABELS: Record<TransactionCategory, string> = {
   hiburan: "Hiburan",
   kesehatan: "Kesehatan",
   pendidikan: "Pendidikan",
+  gaji: "Gaji",
+  bonus: "Bonus",
+  investasi: "Investasi",
   lainnya: "Lainnya",
 };
 
@@ -26,16 +52,28 @@ export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABELS).map(
   })
 );
 
+export const EXPENSE_CATEGORY_OPTIONS = EXPENSE_CATEGORIES.map((cat) => ({
+  value: cat,
+  label: CATEGORY_LABELS[cat],
+}));
+
+export const INCOME_CATEGORY_OPTIONS = INCOME_CATEGORIES.map((cat) => ({
+  value: cat,
+  label: CATEGORY_LABELS[cat],
+}));
+
 export interface TransactionFilter {
   startDate?: string;
   endDate?: string;
   category?: TransactionCategory;
+  type?: TransactionType;
   search?: string;
 }
 
 export interface TransactionWithItems {
   id: string;
   userId: string;
+  type: TransactionType;
   storeName: string;
   date: string;
   total: number;
@@ -54,6 +92,7 @@ export interface TransactionWithItems {
 }
 
 export interface CreateTransactionInput {
+  type: TransactionType;
   storeName: string;
   date: string;
   total: number;
@@ -69,6 +108,7 @@ export interface CreateTransactionInput {
 }
 
 export interface UpdateTransactionInput {
+  type?: TransactionType;
   storeName?: string;
   date?: string;
   total?: number;

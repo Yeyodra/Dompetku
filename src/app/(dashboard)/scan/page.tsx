@@ -20,10 +20,17 @@ import {
   Sparkles, 
   ImagePlus,
   FileText,
-  Save
+  Save,
+  ArrowDownCircle,
+  ArrowUpCircle
 } from "lucide-react";
 import { extractTextFromImage } from "@/lib/ocr";
-import { CATEGORY_OPTIONS, TransactionCategory } from "@/types/transaction";
+import { 
+  EXPENSE_CATEGORY_OPTIONS, 
+  INCOME_CATEGORY_OPTIONS,
+  TransactionCategory,
+  TransactionType 
+} from "@/types/transaction";
 import { ReceiptData, OCRResult } from "@/types/receipt";
 import { toast } from "sonner";
 
@@ -38,10 +45,22 @@ export default function ScanPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
+  const [type, setType] = useState<TransactionType>("expense");
   const [storeName, setStoreName] = useState("");
   const [date, setDate] = useState("");
   const [total, setTotal] = useState("");
   const [category, setCategory] = useState<TransactionCategory>("belanja");
+
+  // Get category options based on type
+  const categoryOptions = type === "expense" 
+    ? EXPENSE_CATEGORY_OPTIONS 
+    : INCOME_CATEGORY_OPTIONS;
+
+  // Reset category when type changes
+  const handleTypeChange = (newType: TransactionType) => {
+    setType(newType);
+    setCategory(newType === "expense" ? "belanja" : "gaji");
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,6 +157,7 @@ export default function ScanPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          type,
           storeName,
           date,
           total: parseFloat(total.replace(/[^0-9]/g, "")),
@@ -157,6 +177,7 @@ export default function ScanPage() {
         setStoreName("");
         setDate("");
         setTotal("");
+        setType("expense");
         setCategory("belanja");
       } else {
         const data = await response.json() as { error?: string };
@@ -173,8 +194,8 @@ export default function ScanPage() {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl">Scan Struk</h1>
-        <p className="font-medium text-muted-foreground">Upload dan scan struk dengan AI</p>
+        <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl">Tambah Transaksi</h1>
+        <p className="font-medium text-muted-foreground">Scan struk atau input manual</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -183,7 +204,7 @@ export default function ScanPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ImagePlus className="h-5 w-5" />
-              Upload Gambar
+              Upload Struk (Opsional)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -293,15 +314,48 @@ export default function ScanPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
+            {/* Transaction Type Toggle */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase">Tipe Transaksi</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant={type === "expense" ? "default" : "outline"}
+                  onClick={() => handleTypeChange("expense")}
+                  className={`flex items-center gap-2 ${
+                    type === "expense" 
+                      ? "bg-destructive hover:bg-destructive/90 text-white" 
+                      : ""
+                  }`}
+                >
+                  <ArrowDownCircle className="h-4 w-4" />
+                  Pengeluaran
+                </Button>
+                <Button
+                  type="button"
+                  variant={type === "income" ? "default" : "outline"}
+                  onClick={() => handleTypeChange("income")}
+                  className={`flex items-center gap-2 ${
+                    type === "income" 
+                      ? "bg-green-600 hover:bg-green-700 text-white" 
+                      : ""
+                  }`}
+                >
+                  <ArrowUpCircle className="h-4 w-4" />
+                  Pemasukan
+                </Button>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="storeName" className="text-xs font-bold uppercase">
-                Nama Toko
+                {type === "expense" ? "Nama Toko" : "Sumber Pemasukan"}
               </Label>
               <Input
                 id="storeName"
                 value={storeName}
                 onChange={(e) => setStoreName(e.target.value)}
-                placeholder="Contoh: Alfamart"
+                placeholder={type === "expense" ? "Contoh: Alfamart" : "Contoh: PT ABC"}
               />
             </div>
 
@@ -319,7 +373,7 @@ export default function ScanPage() {
 
             <div className="space-y-2">
               <Label htmlFor="total" className="text-xs font-bold uppercase">
-                Total (Rp)
+                {type === "expense" ? "Total (Rp)" : "Jumlah (Rp)"}
               </Label>
               <Input
                 id="total"
@@ -342,7 +396,7 @@ export default function ScanPage() {
                   <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORY_OPTIONS.map((opt) => (
+                  {categoryOptions.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>
