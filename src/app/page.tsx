@@ -1,65 +1,96 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Wallet, ScanLine, Receipt, TrendingUp } from "lucide-react";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Header */}
+      <header className="container mx-auto flex items-center justify-between px-4 py-6">
+        <div className="flex items-center gap-2">
+          <Wallet className="h-8 w-8 text-blue-600" />
+          <span className="text-2xl font-bold">Dompetku</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex gap-4">
+          <Link href="/sign-in">
+            <Button variant="ghost">Masuk</Button>
+          </Link>
+          <Link href="/sign-up">
+            <Button>Daftar</Button>
+          </Link>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <main className="container mx-auto px-4 py-16 text-center">
+        <h1 className="mb-6 text-4xl font-bold tracking-tight text-gray-900 md:text-6xl">
+          Catat Pengeluaran
+          <br />
+          <span className="text-blue-600">Dengan Mudah</span>
+        </h1>
+        <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-600">
+          Scan struk belanja dan otomatis catat pengeluaran kamu. 
+          Pantau keuangan dengan lebih mudah menggunakan teknologi OCR.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link href="/sign-up">
+            <Button size="lg">
+              Mulai Gratis
+            </Button>
+          </Link>
+          <Link href="/sign-in">
+            <Button size="lg" variant="outline">
+              Sudah Punya Akun
+            </Button>
+          </Link>
         </div>
       </main>
+
+      {/* Features */}
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="mb-12 text-center text-3xl font-bold">Fitur Unggulan</h2>
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
+              <ScanLine className="h-6 w-6 text-blue-600" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Scan Struk OCR</h3>
+            <p className="text-gray-600">
+              Foto struk belanja dan biarkan sistem membaca otomatis. 
+              Tidak perlu input manual lagi.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+              <Receipt className="h-6 w-6 text-green-600" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Kategori Otomatis</h3>
+            <p className="text-gray-600">
+              Kelompokkan pengeluaran berdasarkan kategori: 
+              makanan, transportasi, belanja, dan lainnya.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
+              <TrendingUp className="h-6 w-6 text-purple-600" />
+            </div>
+            <h3 className="mb-2 text-xl font-semibold">Laporan Keuangan</h3>
+            <p className="text-gray-600">
+              Lihat ringkasan pengeluaran harian, mingguan, 
+              dan bulanan dalam satu dashboard.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-gray-50 py-8">
+        <div className="container mx-auto px-4 text-center text-gray-600">
+          <p>© 2026 Dompetku - Penelitian Ilmiah Universitas Gunadarma</p>
+        </div>
+      </footer>
     </div>
   );
 }
