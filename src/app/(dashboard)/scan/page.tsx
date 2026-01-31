@@ -12,10 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Camera, Upload, Loader2, Check } from "lucide-react";
+import { Camera, Upload, Loader2, Check, Sparkles } from "lucide-react";
 import { extractTextFromImage } from "@/lib/ocr";
 import { CATEGORY_OPTIONS, TransactionCategory } from "@/types/transaction";
-import { ReceiptData } from "@/types/receipt";
+import { ReceiptData, OCRResult } from "@/types/receipt";
 import { toast } from "sonner";
 
 export default function ScanPage() {
@@ -24,6 +24,7 @@ export default function ScanPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [ocrResult, setOcrResult] = useState<ReceiptData | null>(null);
+  const [ocrMethod, setOcrMethod] = useState<"ai" | "tesseract" | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,20 +40,63 @@ export default function ScanPage() {
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
       setOcrResult(null);
+      setOcrMethod(null);
     }
   };
 
-  const handleScan = async () => {
+  // AI OCR via API
+  const handleAIScan = async () => {
     if (!image) return;
 
     setIsProcessing(true);
     setProgress(0);
 
     try {
+      const formData = new FormData();
+      formData.append("image", image);
+
+      setProgress(30);
+      const response = await fetch("/api/ocr", {
+        method: "POST",
+        body: formData,
+      });
+
+      setProgress(80);
+      const result = await response.json() as OCRResult;
+
+      if (result.success && result.data) {
+        setOcrResult(result.data);
+        setOcrMethod("ai");
+        // Pre-fill form with OCR results
+        if (result.data.storeName) setStoreName(result.data.storeName);
+        if (result.data.date) setDate(result.data.date);
+        if (result.data.total) setTotal(result.data.total.toString());
+        toast.success("Struk berhasil di-scan dengan AI!");
+      } else {
+        // Fallback to Tesseract
+        toast.info("AI OCR gagal, mencoba Tesseract...");
+        await handleTesseractScan();
+      }
+    } catch (error) {
+      // Fallback to Tesseract on error
+      toast.info("AI tidak tersedia, menggunakan Tesseract...");
+      await handleTesseractScan();
+    } finally {
+      setIsProcessing(false);
+      setProgress(100);
+    }
+  };
+
+  // Tesseract OCR (fallback)
+  const handleTesseractScan = async () => {
+    if (!image) return;
+
+    try {
       const result = await extractTextFromImage(image, (p) => setProgress(p));
 
       if (result.success && result.data) {
         setOcrResult(result.data);
+        setOcrMethod("tesseract");
         // Pre-fill form with OCR results
         if (result.data.storeName) setStoreName(result.data.storeName);
         if (result.data.date) setDate(result.data.date);
@@ -63,9 +107,13 @@ export default function ScanPage() {
       }
     } catch (error) {
       toast.error("Terjadi kesalahan saat memproses gambar");
-    } finally {
-      setIsProcessing(false);
     }
+  };
+
+  const handleScan = async () => {
+    if (!image) return;
+    // Try AI first, fallback to Tesseract
+    await handleAIScan();
   };
 
   const handleSave = async () => {
@@ -177,8 +225,12 @@ export default function ScanPage() {
             {ocrResult && (
               <div className="rounded-lg bg-green-50 p-4">
                 <p className="flex items-center gap-2 text-sm text-green-700">
-                  <Check className="h-4 w-4" />
-                  OCR berhasil dengan confidence: {ocrResult.confidence.toFixed(1)}%
+                  {ocrMethod === "ai" ? (
+                    <Sparkles className="h-4 w-4" />
+                  ) : (
+                    <Check className="h-4 w-4" />
+                  )}
+                  {ocrMethod === "ai" ? "AI OCR" : "Tesseract OCR"} berhasil dengan confidence: {ocrResult.confidence.toFixed(1)}%
                 </p>
               </div>
             )}
