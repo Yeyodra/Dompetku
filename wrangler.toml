@@ -1,0 +1,20 @@
+name = "dompetku"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database
+# Jalankan: wrangler d1 create dompetku-db
+# Lalu update database_id di bawah
+[[d1_databases]]
+binding = "DB"
+database_name = "dompetku-db"
+database_id = "<D1_DATABASE_ID>"
+
+# R2 Bucket untuk gambar struk
+# Jalankan: wrangler r2 bucket create dompetku-storage
+[[r2_buckets]]
+binding = "STORAGE_R2"
+bucket_name = "dompetku-storage"
+
+[vars]
+APP_NAME = "Dompetku"

@@ -6,21 +6,39 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cf:dev": "wrangler dev --port 3000",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && wrangler dev --port 3000",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf:login": "wrangler login",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply dompetku-db",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.37.1",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.45.1",
+    "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "tesseract.js": "^7.0.0",
+    "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260131.0",
+    "@opennextjs/cloudflare": "^1.16.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.8",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.61.1"
   }
 }
