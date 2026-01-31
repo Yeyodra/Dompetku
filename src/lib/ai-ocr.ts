@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { ReceiptData, ReceiptItem, OCRResult } from "@/types/receipt";
 
 const client = new OpenAI({
-  baseURL: process.env.ANTIGRAVITY_BASE_URL || "http://127.0.0.1:8045",
+  baseURL: process.env.ANTIGRAVITY_BASE_URL || "http://127.0.0.1:8045/v1",
   apiKey: process.env.ANTIGRAVITY_API_KEY || "",
 });
 
