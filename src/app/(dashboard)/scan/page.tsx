@@ -12,7 +12,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Camera, Upload, Loader2, Check, Sparkles } from "lucide-react";
+import { 
+  Camera, 
+  Upload, 
+  Loader2, 
+  Check, 
+  Sparkles, 
+  ImagePlus,
+  FileText,
+  Save
+} from "lucide-react";
 import { extractTextFromImage } from "@/lib/ocr";
 import { CATEGORY_OPTIONS, TransactionCategory } from "@/types/transaction";
 import { ReceiptData, OCRResult } from "@/types/receipt";
@@ -161,14 +170,21 @@ export default function ScanPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Scan Struk</h1>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl">Scan Struk</h1>
+        <p className="font-medium text-muted-foreground">Upload dan scan struk dengan AI</p>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Upload Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Upload Gambar Struk</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <ImagePlus className="h-5 w-5" />
+              Upload Gambar
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <input
@@ -182,56 +198,87 @@ export default function ScanPage() {
             {!imagePreview ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 hover:border-gray-400"
+                className="group flex cursor-pointer flex-col items-center justify-center border-[3px] border-dashed border-black bg-white p-12 transition-all hover:bg-primary/10"
               >
-                <Camera className="mb-4 h-12 w-12 text-gray-400" />
-                <p className="text-gray-600">Klik untuk upload gambar struk</p>
-                <p className="text-sm text-gray-400">
-                  Format: JPG, PNG, WebP (max 5MB)
+                <div className="mb-4 flex h-20 w-20 items-center justify-center border-[3px] border-black bg-primary shadow-[4px_4px_0px_#000] transition-transform group-hover:shadow-[6px_6px_0px_#000] group-hover:-translate-x-[2px] group-hover:-translate-y-[2px]">
+                  <Camera className="h-10 w-10" />
+                </div>
+                <p className="mb-1 font-bold uppercase">Klik untuk upload</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  JPG, PNG, WebP (max 5MB)
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                <img
-                  src={imagePreview}
-                  alt="Preview struk"
-                  className="max-h-96 w-full rounded-lg object-contain"
-                />
-                <div className="flex gap-2">
+                <div className="border-[3px] border-black bg-white p-2 shadow-[4px_4px_0px_#000]">
+                  <img
+                    src={imagePreview}
+                    alt="Preview struk"
+                    className="max-h-72 w-full object-contain"
+                  />
+                </div>
+                <div className="flex gap-3">
                   <Button
                     variant="outline"
                     onClick={() => fileInputRef.current?.click()}
+                    className="flex-1"
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Ganti Gambar
+                    <Upload className="h-4 w-4" />
+                    Ganti
                   </Button>
-                  <Button onClick={handleScan} disabled={isProcessing}>
+                  <Button 
+                    onClick={handleScan} 
+                    disabled={isProcessing}
+                    className="flex-1"
+                  >
                     {isProcessing ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Memproses... {progress}%
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {progress}%
                       </>
                     ) : (
                       <>
-                        <Camera className="mr-2 h-4 w-4" />
-                        Scan Struk
+                        <Sparkles className="h-4 w-4" />
+                        Scan AI
                       </>
                     )}
                   </Button>
                 </div>
+
+                {/* Progress bar */}
+                {isProcessing && (
+                  <div className="space-y-2">
+                    <div className="h-4 border-[3px] border-black bg-white">
+                      <div 
+                        className="h-full bg-primary transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <p className="text-center text-sm font-bold uppercase">
+                      Memproses...
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
             {ocrResult && (
-              <div className="rounded-lg bg-green-50 p-4">
-                <p className="flex items-center gap-2 text-sm text-green-700">
+              <div className="flex items-center gap-3 border-[3px] border-black bg-secondary p-4 shadow-[4px_4px_0px_#000]">
+                <div className="flex h-12 w-12 items-center justify-center border-[3px] border-black bg-white">
                   {ocrMethod === "ai" ? (
-                    <Sparkles className="h-4 w-4" />
+                    <Sparkles className="h-6 w-6" />
                   ) : (
-                    <Check className="h-4 w-4" />
+                    <Check className="h-6 w-6" />
                   )}
-                  {ocrMethod === "ai" ? "AI OCR" : "Tesseract OCR"} berhasil dengan confidence: {ocrResult.confidence.toFixed(1)}%
-                </p>
+                </div>
+                <div>
+                  <p className="font-black uppercase">
+                    {ocrMethod === "ai" ? "AI OCR" : "Tesseract"} Berhasil!
+                  </p>
+                  <p className="text-sm font-medium">
+                    Confidence: {ocrResult.confidence.toFixed(1)}%
+                  </p>
+                </div>
               </div>
             )}
           </CardContent>
@@ -240,11 +287,16 @@ export default function ScanPage() {
         {/* Form Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Detail Transaksi</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Detail Transaksi
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="storeName">Nama Toko</Label>
+              <Label htmlFor="storeName" className="text-xs font-bold uppercase">
+                Nama Toko
+              </Label>
               <Input
                 id="storeName"
                 value={storeName}
@@ -254,7 +306,9 @@ export default function ScanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Tanggal</Label>
+              <Label htmlFor="date" className="text-xs font-bold uppercase">
+                Tanggal
+              </Label>
               <Input
                 id="date"
                 type="date"
@@ -264,7 +318,9 @@ export default function ScanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="total">Total (Rp)</Label>
+              <Label htmlFor="total" className="text-xs font-bold uppercase">
+                Total (Rp)
+              </Label>
               <Input
                 id="total"
                 type="text"
@@ -275,12 +331,14 @@ export default function ScanPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Kategori</Label>
+              <Label htmlFor="category" className="text-xs font-bold uppercase">
+                Kategori
+              </Label>
               <Select
                 value={category}
                 onValueChange={(v) => setCategory(v as TransactionCategory)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[3px] border-black shadow-[4px_4px_0px_#000]">
                   <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
                 <SelectContent>
@@ -300,25 +358,28 @@ export default function ScanPage() {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Menyimpan...
                 </>
               ) : (
-                "Simpan Transaksi"
+                <>
+                  <Save className="h-4 w-4" />
+                  Simpan
+                </>
               )}
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      {/* OCR Raw Text (Debug) */}
+      {/* OCR Raw Text */}
       {ocrResult?.rawText && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Teks Hasil OCR</CardTitle>
+            <CardTitle>Hasil OCR</CardTitle>
           </CardHeader>
           <CardContent>
-            <pre className="max-h-48 overflow-auto rounded bg-gray-100 p-4 text-xs">
+            <pre className="max-h-48 overflow-auto border-[3px] border-black bg-white p-4 font-mono text-xs shadow-[4px_4px_0px_#000]">
               {ocrResult.rawText}
             </pre>
           </CardContent>

@@ -12,15 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Plus, Search, Filter } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  Receipt, 
+  ScanLine
+} from "lucide-react";
 import Link from "next/link";
 import { CATEGORY_OPTIONS, TransactionCategory } from "@/types/transaction";
 
@@ -56,31 +54,37 @@ export default function TransactionsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Transaksi</h1>
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-black uppercase tracking-tight md:text-4xl">Transaksi</h1>
+          <p className="font-medium text-muted-foreground">Riwayat pengeluaran kamu</p>
+        </div>
         <Link href="/scan">
           <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Transaksi
+            <Plus className="h-4 w-4" />
+            Tambah
           </Button>
         </Link>
       </div>
 
       {/* Filters */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Filter className="h-4 w-4" />
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
             Filter
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-2">
-              <Label htmlFor="search">Cari</Label>
+              <Label htmlFor="search" className="text-xs font-bold uppercase">
+                Cari Toko
+              </Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
                 <Input
                   id="search"
                   placeholder="Nama toko..."
@@ -92,12 +96,14 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Kategori</Label>
+              <Label htmlFor="category" className="text-xs font-bold uppercase">
+                Kategori
+              </Label>
               <Select
                 value={category}
                 onValueChange={(v) => setCategory(v as TransactionCategory | "all")}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[3px] border-black shadow-[4px_4px_0px_#000]">
                   <SelectValue placeholder="Semua kategori" />
                 </SelectTrigger>
                 <SelectContent>
@@ -112,7 +118,9 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="startDate">Dari Tanggal</Label>
+              <Label htmlFor="startDate" className="text-xs font-bold uppercase">
+                Dari Tanggal
+              </Label>
               <Input
                 id="startDate"
                 type="date"
@@ -122,7 +130,9 @@ export default function TransactionsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="endDate">Sampai Tanggal</Label>
+              <Label htmlFor="endDate" className="text-xs font-bold uppercase">
+                Sampai Tanggal
+              </Label>
               <Input
                 id="endDate"
                 type="date"
@@ -134,43 +144,59 @@ export default function TransactionsPage() {
         </CardContent>
       </Card>
 
-      {/* Transactions Table */}
+      {/* Transactions List */}
       <Card>
         <CardContent className="p-0">
           {filteredTransactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <p className="text-gray-500">Belum ada transaksi</p>
-              <Link href="/scan" className="mt-4">
-                <Button variant="outline">Scan Struk Pertama</Button>
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="mb-4 flex h-20 w-20 items-center justify-center border-[3px] border-black bg-primary shadow-[4px_4px_0px_#000]">
+                <Receipt className="h-10 w-10" />
+              </div>
+              <h3 className="mb-2 text-xl font-black uppercase">Belum Ada</h3>
+              <p className="mb-6 max-w-sm text-center font-medium text-muted-foreground">
+                Mulai catat pengeluaranmu dengan scan struk
+              </p>
+              <Link href="/scan">
+                <Button>
+                  <ScanLine className="h-4 w-4" />
+                  Scan Struk
+                </Button>
               </Link>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Toko</TableHead>
-                  <TableHead>Kategori</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTransactions.map((tx) => (
-                  <TableRow key={tx.id}>
-                    <TableCell>
-                      {new Date(tx.date).toLocaleDateString("id-ID")}
-                    </TableCell>
-                    <TableCell>{tx.storeName}</TableCell>
-                    <TableCell>
+            <div className="divide-y-[3px] divide-black">
+              {/* Table Header */}
+              <div className="grid grid-cols-4 gap-4 bg-black p-4 font-bold uppercase text-white">
+                <div>Tanggal</div>
+                <div>Toko</div>
+                <div>Kategori</div>
+                <div className="text-right">Total</div>
+              </div>
+              {/* Table Body */}
+              {filteredTransactions.map((tx) => (
+                <div 
+                  key={tx.id} 
+                  className="grid grid-cols-4 gap-4 p-4 font-medium transition-colors hover:bg-primary/20"
+                >
+                  <div>
+                    {new Date(tx.date).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric"
+                    })}
+                  </div>
+                  <div className="font-bold">{tx.storeName}</div>
+                  <div>
+                    <span className="inline-block border-[2px] border-black bg-secondary px-2 py-1 text-xs font-bold uppercase">
                       {CATEGORY_OPTIONS.find((c) => c.value === tx.category)?.label}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      Rp {tx.total.toLocaleString("id-ID")}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </span>
+                  </div>
+                  <div className="text-right font-black">
+                    Rp {tx.total.toLocaleString("id-ID")}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

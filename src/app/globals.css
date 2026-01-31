@@ -47,38 +47,80 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0px;
+  
+  /* ============================================
+     NEO BRUTALISM DESIGN SYSTEM
+     Bold colors, thick borders, harsh shadows
+     ============================================ */
+  
+  /* Base - Cream/Off-white background */
+  --background: #FFFEF0;
+  --foreground: #000000;
+  
+  /* Cards - White with black border */
+  --card: #FFFFFF;
+  --card-foreground: #000000;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #000000;
+  
+  /* Primary - Vibrant Yellow (Neo Brutalism signature) */
+  --primary: #FFE500;
+  --primary-foreground: #000000;
+  
+  /* Secondary - Electric Blue */
+  --secondary: #A8E6CF;
+  --secondary-foreground: #000000;
+  
+  /* Muted - Light gray */
+  --muted: #F5F5F5;
+  --muted-foreground: #525252;
+  
+  /* Accent - Hot Pink */
+  --accent: #FF6B9D;
+  --accent-foreground: #000000;
+  
+  /* Destructive - Bright Red */
+  --destructive: #FF3B30;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Borders - Always black, thick */
+  --border: #000000;
+  --input: #FFFFFF;
+  --ring: #000000;
+  
+  /* Neo Brutalism specific */
+  --shadow: 4px 4px 0px #000000;
+  --shadow-sm: 2px 2px 0px #000000;
+  --shadow-lg: 6px 6px 0px #000000;
+  --shadow-hover: 6px 6px 0px #000000;
+  --border-width: 3px;
+  
+  /* Chart colors - Bold and vibrant */
+  --chart-1: #FFE500;
+  --chart-2: #FF6B9D;
+  --chart-3: #A8E6CF;
+  --chart-4: #88D8FF;
+  --chart-5: #C4B5FD;
+  
+  /* Semantic colors - Neo Brutalism style */
+  --success: #A8E6CF;
+  --success-foreground: #000000;
+  --warning: #FFE500;
+  --warning-foreground: #000000;
+  --info: #88D8FF;
+  --info-foreground: #000000;
+  
+  /* Sidebar - Black background */
+  --sidebar: #000000;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #FFE500;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1A1A1A;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #333333;
+  --sidebar-ring: #FFE500;
 }
 
 .dark {
